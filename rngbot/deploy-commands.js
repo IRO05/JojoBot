@@ -6,22 +6,35 @@ const token = process.env.BOT_TOKEN;
 const fs = require('node:fs');
 const path = require('node:path');
 
+// create a folder to hold the commands
 const commands = [];
-// Grab all the command folders from the commands directory you created earlier
+
+// create a foldersPath that which points into the commands directory
 const foldersPath = path.join(__dirname, 'commands');
+
+// creates a list of the directories inside the commands folder
 const commandFolders = fs.readdirSync(foldersPath);
 
+// for each folder in the command folder
 for (const folder of commandFolders) {
-	// Grab all the command files from the commands directory you created earlier
+
+	// create a path to that folder
 	const commandsPath = path.join(foldersPath, folder);
+	// create a list of files in that folder that end in .js
 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-	// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
+	
+	// for each js file in the folder
 	for (const file of commandFiles) {
+		// create a path to that file
 		const filePath = path.join(commandsPath, file);
+		// import the command from the path
 		const command = require(filePath);
+		// if there is both a data property and an execute command
 		if ('data' in command && 'execute' in command) {
+			//push the data properties to JSON to the command list (not 100% but this is what the command builder needs to make the command and then we handle what happens after its actually called)
 			commands.push(command.data.toJSON());
 		} else {
+			// always log ur errors
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
 	}
